@@ -15,7 +15,7 @@ To run the notebook on your own computer, you need to download Open Model Zoo an
 * Clone the Open Model Zoo repository: `git clone https://github.com/openvinotoolkit/open_model_zoo.git` (You can download `git` from https://git-scm.com)
 * Download and install Python 3.7 from https://www.python.org/downloads/release/python-379/
 * Create and activate a virtual environment. See https://docs.python.org/3.7/tutorial/venv.html
-* Go to the `open_model_zoo` directory that contains this README and install OpenVINO with `pip install openvino`
+* Go to the `open_model_zoo` directory that contains this README and install OpenVINO and the Model Downloader requirements with `pip install openvino pyyaml requests`
 * Install Jupyter with `pip install jupyterlab`
 * Run the notebook with `jupyter lab bert_question_answering_demo.ipynb`
 

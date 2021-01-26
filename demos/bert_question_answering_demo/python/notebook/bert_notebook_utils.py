@@ -8,7 +8,7 @@ import subprocess
 import numpy as np
 from openvino.inference_engine import IECore
 
-open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))))
+open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir)))))
 sys.path.append(os.path.join(open_model_zoo_path, "demos",  "common", "python"))
 
 from tokens_bert import text_to_tokens, load_vocab_file
@@ -56,11 +56,8 @@ class BERT(object):
         self.max_question_token_num = 8
         self.max_answer_token_num = 15
 
-        self.context = self.load_context()
-        # encode context into token ids list
-        self.vocab = load_vocab_file(self.vocab_file)
-        self.c_tokens_id, self.c_tokens_se = text_to_tokens(self.context.lower(), self.vocab)
-        self.ie_encoder_exec = self.load_model()
+        self.load_context()
+        self.load_model()
 
     @property
     def input_names(self):
@@ -80,15 +77,15 @@ class BERT(object):
 
     def set_input_url(self, url):
         self._input_url = url
-        self.context = self.load_context()
+        self.load_context()
         if self.reshape:
-            self.ie_encoder_exec = self.load_model()
+            self.load_model()
 
     def set_model_name(self, model_name):
         if model_name not in INPUT_NAMES:
             raise ValueError(f"Model `{model_name}` is not supported. Supported models are: {', '.join(list(INPUT_NAMES.keys()))}.")
         self._model_name = model_name
-        self.ie_encoder_exec = self.load_model()
+        self.load_model()
 
     def load_context(self):
         # get context as a string (as we might need it's length for the sequence reshape)
@@ -96,7 +93,9 @@ class BERT(object):
         input_urls = [self._input_url,]
         paragraphs = get_paragraphs(input_urls)
         context = '\n'.join(paragraphs)
-        return context
+        self.context = context
+        self.vocab = load_vocab_file(self.vocab_file)
+        self.c_tokens_id, self.c_tokens_se = text_to_tokens(self.context.lower(), self.vocab)
 
     def load_model(self):
         ie = IECore()
@@ -131,8 +130,7 @@ class BERT(object):
                 print("Skipping network reshaping,"
                          " as (context length + max question length) exceeds the current (input) network sequence length")
 
-        ie_encoder_exec = ie.load_network(network=ie_encoder, device_name=self.device)
-        return ie_encoder_exec
+        self.ie_encoder_exec = ie.load_network(network=ie_encoder, device_name=self.device)
 
     def ask(self, questions, show_context=True, show_answers=True):
         if isinstance(questions, str):
