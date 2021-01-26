@@ -45,7 +45,7 @@ def find_sentence_range(context, s, e):
 
 class BERT(object):
     def __init__(self, input_url, vocab_file, model_name, base_model_dir, reshape,  device, model_squad_ver):
-        self.input_url = input_url
+        self._input_url = input_url
         self.vocab_file = vocab_file
         self._model_name = model_name
         self.base_model_dir = base_model_dir
@@ -55,7 +55,12 @@ class BERT(object):
 
         self.max_question_token_num = 8
         self.max_answer_token_num = 15
-        self.load_model()
+
+        self.context = self.load_context()
+        self.vocab = load_vocab_file(self.vocab_file)
+        self.ie_encoder, self.ie_encoder_exec = self.load_model()
+        # encode context into token ids list
+        self.c_tokens_id, self.c_tokens_se = text_to_tokens(self.context.lower(), self.vocab)
 
 
     @property
@@ -67,8 +72,25 @@ class BERT(object):
     def output_names(self):
         return OUTPUT_NAMES[self.model_name]
 
+    @property
+    def input_url(self):
+        return self._input_url
+
+    @property
+    def model_name(self):
+        return self._model_name
+
     def set_input_url(self, url):
-        self.input_url = url
+        self.load_context()
+        self._input_url = url
+
+    def load_context(self):
+        # get context as a string (as we might need it's length for the sequence reshape)
+        # for this demo we only accept one URL as input
+        input_urls = [self._input_url,]
+        paragraphs = get_paragraphs(input_urls)
+        context = '\n'.join(paragraphs)
+        return context
 
     def load_model(self):
         ie = IECore()
@@ -78,20 +100,40 @@ class BERT(object):
         # print(f"Loading model from {base_model_path}")
         model_xml = base_model_path + '.xml'
         model_bin = base_model_path + '.bin'
-        self.ie_encoder = ie.read_network(model=model_xml, weights=model_bin)
+        ie_encoder = ie.read_network(model=model_xml, weights=model_bin)
         # load model to the device
-        self.ie_encoder_exec = ie.load_network(network=self.ie_encoder, device_name=self.device)
 
+        if self.reshape:
+            first_input_layer = next(iter(self.input_info))
+            c = ie_encoder.input_info[first_input_layer].input_data.shape[1]
+            # find the closest multiple of 64, if it is smaller than current network's sequence length, let' use that
+            seq = min(c, int(np.ceil((len(self.c_tokens_id) + self.max_question_token_num) / 64) * 64))
+            if seq < c:
+                input_info = list(self.input_info)
+                new_shapes = dict([])
+                for i in input_info:
+                    n, c = ie_encoder.input_info[i].input_data.shape
+                    new_shapes[i] = [n, seq]
+                    print("Reshaped input {} from {} to the {}".format(i, ie_encoder.input_info[i].input_data.shape, new_shapes[i]))
+                print("Attempting to reshape the network to the modified inputs...")
+                try:
+                    ie_encoder.reshape(new_shapes)
+                    print("Successful!")
+                except RuntimeError:
+                    print("Failed to reshape the network, please set the `reshape` setting to False")
+            else:
+                print("Skipping network reshaping,"
+                         " as (context length + max question length) exceeds the current (input) network sequence length")
 
-    @property
-    def model_name(self):
-        return self._model_name
+        ie_encoder_exec = ie.load_network(network=ie_encoder, device_name=self.device)
+        return ie_encoder, ie_encoder_exec
+
 
     def set_model_name(self, model_name):
         if model_name not in INPUT_NAMES:
             raise ValueError(f"Model `{model_name}` is not supported. Supported models are: {', '.join(list(INPUT_NAMES.keys()))}.")
         self._model_name = model_name
-        self.load_model()
+        self.ie_encoder, self.ie_encoder_exec = self.load_model()
 
     def ask(self, questions, show_context=True, show_answers=True):
         if isinstance(questions, str):
@@ -100,41 +142,6 @@ class BERT(object):
         COLOR_BLUE = '\033[94m'
         COLOR_RED = "\033[91m"
         COLOR_RESET = "\033[0m"
-
-        # load vocabulary file for model
-        vocab = load_vocab_file(self.vocab_file)
-        log.info("{} tokens loaded".format(len(vocab)))
-
-        # get context as a string (as we might need it's length for the sequence reshape)
-        # for this demo we only accept one URL as input
-        input_urls = [self.input_url,]
-        paragraphs = get_paragraphs(input_urls)
-        context = '\n'.join(paragraphs)
-
-        # encode context into token ids list
-        c_tokens_id, c_tokens_se = text_to_tokens(context.lower(), vocab)
-
-        if self.reshape:
-            first_input_layer = next(iter(self.ie_encoder.inputs))
-            c = self.ie_encoder.input_info[first_input_layer].input_data.shape[1]
-            # find the closest multiple of 64, if it is smaller than current network's sequence length, let' use that
-            seq = min(c, int(np.ceil((len(c_tokens_id) + self.max_question_token_num) / 64) * 64))
-            if seq < c:
-                input_info = list(self.ie_encoder.input_info)
-                new_shapes = dict([])
-                for i in input_info:
-                    n, c = self.ie_encoder.input_info[i].input_data.shape
-                    new_shapes[i] = [n, seq]
-                    print("Reshaped input {} from {} to the {}".format(i, self.ie_encoder.input_info[i].input_data.shape, new_shapes[i]))
-                print("Attempting to reshape the network to the modified inputs...")
-                try:
-                    self.ie_encoder.reshape(new_shapes)
-                    print("Successful!")
-                except RuntimeError:
-                    print("Failed to reshape the network, please set the `reshape` setting to False")
-            else:
-                print("Skipping network reshaping,"
-                         " as (context length + max question length) exceeds the current (input) network sequence length")
 
         # check input and output names
         if self.ie_encoder.input_info.keys() != set(self.input_names) or self.ie_encoder.outputs.keys() != set(self.output_names):
@@ -149,7 +156,7 @@ class BERT(object):
 
         # loop over questions
         for question in questions:
-            q_tokens_id, _ = text_to_tokens(question.lower(), vocab)
+            q_tokens_id, _ = text_to_tokens(question.lower(), self.vocab)
 
             # maximum number of tokens that can be processed by network at once
             max_length = self.ie_encoder.input_info[self.input_names[0]].input_data.shape[1]
@@ -170,14 +177,14 @@ class BERT(object):
             answers = []
 
             # init a window to iterate over context
-            c_s, c_e = 0, min(c_wnd_len, len(c_tokens_id))
+            c_s, c_e = 0, min(c_wnd_len, len(self.c_tokens_id))
 
             # iterate while context window is not empty
             while c_e > c_s:
                 # form the request
-                tok_cls = vocab['[CLS]']
-                tok_sep = vocab['[SEP]']
-                input_ids = [tok_cls] + q_tokens_id + [tok_sep] + c_tokens_id[c_s:c_e] + [tok_sep]
+                tok_cls = self.vocab['[CLS]']
+                tok_sep = self.vocab['[SEP]']
+                input_ids = [tok_cls] + q_tokens_id + [tok_sep] + self.c_tokens_id[c_s:c_e] + [tok_sep]
                 token_type_ids = [0] + [0] * len(q_tokens_id) + [0] + [1] * (c_e - c_s) + [0]
                 attention_mask = [1] * len(input_ids)
 
@@ -229,8 +236,8 @@ class BERT(object):
                 max_score = score_mat[max_s, max_e] * (1 - score_na)
 
                 # convert to context text start-end index
-                max_s = c_tokens_se[c_s + max_s][0]
-                max_e = c_tokens_se[c_s + max_e][1]
+                max_s = self.c_tokens_se[c_s + max_s][0]
+                max_e = self.c_tokens_se[c_s + max_e][1]
 
                 # check that answers list does not have duplicates (because of context windows overlapping)
                 same = [i for i, a in enumerate(answers) if a[1] == max_s and a[2] == max_e]
@@ -244,12 +251,12 @@ class BERT(object):
                     answers.append((max_score, max_s, max_e))
 
                 # check that context window reached the end
-                if c_e == len(c_tokens_id):
+                if c_e == len(self.c_tokens_id):
                     break
 
                 # move to next window position
-                c_s = min(c_s + c_stride, len(c_tokens_id))
-                c_e = min(c_s + c_wnd_len, len(c_tokens_id))
+                c_s = min(c_s + c_stride, len(self.c_tokens_id))
+                c_e = min(c_s + c_wnd_len, len(self.c_tokens_id))
 
             # print top 3 results
             if show_context or show_answers:
@@ -258,8 +265,8 @@ class BERT(object):
 
                 for score, s, e in answers[:3]:
                     if show_answers:
-                        print(f"---answer (score: {score:.2f}): {context[s:e]}")
+                        print(f"---answer (score: {score:.2f}): {self.context[s:e]}")
                     if show_context:
-                        c_s, c_e = find_sentence_range(context, s, e)
-                        print("   " + context[c_s:s] + COLOR_RED + context[s:e] + COLOR_RESET + context[e:c_e])
+                        c_s, c_e = find_sentence_range(self.context, s, e)
+                        print("   " + self.context[c_s:s] + COLOR_RED + self.context[s:e] + COLOR_RESET + self.context[e:c_e])
                 print()

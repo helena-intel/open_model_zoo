@@ -1,1 +1,6 @@
 *.pyc
+*.xml
+*.bin
+*checkpoint*
+.vscode
+.gitignore
