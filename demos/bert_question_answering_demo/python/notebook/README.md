@@ -4,7 +4,7 @@ This README describes the Question Answering demo notebook that uses a Squad-tun
 
 ## Run the notebook in the cloud
 
-Try the notebook without installing anything: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/helena-intel/open_model_zoo/bert-qa-notebook?filepath=demos%2Fbert_question_answering_demo%2Fpython%2Fbert_question_answering_demo.ipynb)
+Try the notebook without installing anything: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/helena-intel/open_model_zoo/bert-qa-notebook?filepath=demos%2Fbert_question_answering_demo%2Fpython%2Fnotebook%2Fbert_question_answering_demo.ipynb)
 
 
 ## Run the notebook on your own computer
