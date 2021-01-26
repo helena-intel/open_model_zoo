@@ -57,16 +57,14 @@ class BERT(object):
         self.max_answer_token_num = 15
 
         self.context = self.load_context()
-        self.vocab = load_vocab_file(self.vocab_file)
-        self.ie_encoder, self.ie_encoder_exec = self.load_model()
         # encode context into token ids list
+        self.vocab = load_vocab_file(self.vocab_file)
         self.c_tokens_id, self.c_tokens_se = text_to_tokens(self.context.lower(), self.vocab)
-
+        self.ie_encoder_exec = self.load_model()
 
     @property
     def input_names(self):
         return INPUT_NAMES[self.model_name]
-
 
     @property
     def output_names(self):
@@ -81,8 +79,16 @@ class BERT(object):
         return self._model_name
 
     def set_input_url(self, url):
-        self.load_context()
         self._input_url = url
+        self.context = self.load_context()
+        if self.reshape:
+            self.ie_encoder_exec = self.load_model()
+
+    def set_model_name(self, model_name):
+        if model_name not in INPUT_NAMES:
+            raise ValueError(f"Model `{model_name}` is not supported. Supported models are: {', '.join(list(INPUT_NAMES.keys()))}.")
+        self._model_name = model_name
+        self.ie_encoder_exec = self.load_model()
 
     def load_context(self):
         # get context as a string (as we might need it's length for the sequence reshape)
@@ -104,7 +110,7 @@ class BERT(object):
         # load model to the device
 
         if self.reshape:
-            first_input_layer = next(iter(self.input_info))
+            first_input_layer = next(iter(ie_encoder.input_info))
             c = ie_encoder.input_info[first_input_layer].input_data.shape[1]
             # find the closest multiple of 64, if it is smaller than current network's sequence length, let' use that
             seq = min(c, int(np.ceil((len(self.c_tokens_id) + self.max_question_token_num) / 64) * 64))
@@ -126,14 +132,7 @@ class BERT(object):
                          " as (context length + max question length) exceeds the current (input) network sequence length")
 
         ie_encoder_exec = ie.load_network(network=ie_encoder, device_name=self.device)
-        return ie_encoder, ie_encoder_exec
-
-
-    def set_model_name(self, model_name):
-        if model_name not in INPUT_NAMES:
-            raise ValueError(f"Model `{model_name}` is not supported. Supported models are: {', '.join(list(INPUT_NAMES.keys()))}.")
-        self._model_name = model_name
-        self.ie_encoder, self.ie_encoder_exec = self.load_model()
+        return ie_encoder_exec
 
     def ask(self, questions, show_context=True, show_answers=True):
         if isinstance(questions, str):
@@ -144,13 +143,13 @@ class BERT(object):
         COLOR_RESET = "\033[0m"
 
         # check input and output names
-        if self.ie_encoder.input_info.keys() != set(self.input_names) or self.ie_encoder.outputs.keys() != set(self.output_names):
+        if self.ie_encoder_exec.input_info.keys() != set(self.input_names) or self.ie_encoder_exec.outputs.keys() != set(self.output_names):
             log.error("Input or Output names do not match")
             log.error("    The demo expects input->output names: {}->{}. "
                       "Please use the --input_names and --output_names to specify the right names "
                       "(see actual values below)".format(self.input_names, self.output_names))
-            log.error("    Actual network input->output names: {}->{}".format(list(self.ie_encoder.input_info.keys()),
-                                                                              list(self.ie_encoder.outputs.keys())))
+            log.error("    Actual network input->output names: {}->{}".format(list(self.ie_encoder_exec.input_info.keys()),
+                                                                              list(self.ie_encoder_exec.outputs.keys())))
             raise Exception("Unexpected network input or output names")
 
 
@@ -159,7 +158,7 @@ class BERT(object):
             q_tokens_id, _ = text_to_tokens(question.lower(), self.vocab)
 
             # maximum number of tokens that can be processed by network at once
-            max_length = self.ie_encoder.input_info[self.input_names[0]].input_data.shape[1]
+            max_length = self.ie_encoder_exec.input_info[self.input_names[0]].input_data.shape[1]
 
             # calculate number of tokens for context in each inference request.
             # reserve 3 positions for special tokens
