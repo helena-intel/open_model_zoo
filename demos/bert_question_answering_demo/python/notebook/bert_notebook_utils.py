@@ -2,8 +2,6 @@ import logging as log
 import os
 import sys
 import time
-from argparse import ArgumentParser, SUPPRESS
-import subprocess
 
 import numpy as np
 from openvino.inference_engine import IECore
