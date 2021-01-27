@@ -1,11 +1,10 @@
-# BERT Question Answering Jupyter\* Demo
+# BERT Question Answering Demo
 
-This README describes the Question Answering demo notebook that uses a Squad-tuned BERT model for inference.
+This README describes the Question Answering demo notebook that uses a SQuAD-tuned BERT model from [Open Model Zoo](https://github.com/openvinotoolkit/open_model_zoo) for inference.
 
 ## Run the notebook in the cloud
 
 Try the notebook without installing anything: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/helena-intel/open_model_zoo/bert-qa-notebook?filepath=demos%2Fbert_question_answering_demo%2Fpython%2Fnotebook%2Fbert_question_answering_demo.ipynb)
-
 
 ## Run the notebook on your own computer
 
@@ -21,7 +20,7 @@ To run the notebook on your own computer, you need to download Open Model Zoo an
 
 ## See Also
 
-* [Using Open Model Zoo demos](../../../README.md)
+* [Open Model Zoo Python and C++ demos](../../../README.md)
 * [Model Optimizer](https://docs.openvinotoolkit.org/latest/_docs_MO_DG_Deep_Learning_Model_Optimizer_DevGuide.html)
 * [Model Downloader](../../../../tools/downloader/README.md)
 * [Benchmark C++ Sample](https://docs.openvinotoolkit.org/latest/_inference_engine_samples_benchmark_app_README.html)
