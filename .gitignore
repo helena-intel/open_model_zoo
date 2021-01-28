@@ -1,1 +1,10 @@
 *.pyc
+*.xml
+*.bin
+*Copy*
+*checkpoint*
+*scratch*
+.python-version
+*workspace
+*Untitled*
+.vscode/*
