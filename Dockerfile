@@ -11,7 +11,6 @@ WORKDIR $HOME
 USER jovyan
 
 COPY --chown=jovyan:jovyan entrypoint.sh /home/jovyan
-COPY --chown=jovyan:jovyan Presentation.ipynb /home/jovyan
 COPY --chown=jovyan:jovyan . /home/jovyan
 RUN chown -R jovyan /home/jovyan
 
