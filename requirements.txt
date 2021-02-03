@@ -4,3 +4,5 @@ matplotlib
 openvino
 opencv_python
 pyyaml
+ipython==7.10
+numpy==1.19
