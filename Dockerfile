@@ -21,9 +21,9 @@ WORKDIR $HOME
 
 USER jovyan
 
-COPY --chown=jovyan:jovyan demos /home/${USER}
-COPY --chown=jovyan:jovyan models /home/${USER}
-COPY --chown=jovyan:jovyan tools /home/${USER}
+COPY --chown=jovyan:jovyan demos /home/${USER}/demos
+COPY --chown=jovyan:jovyan models /home/${USER}/models
+COPY --chown=jovyan:jovyan tools /home/${USER}/tools
 COPY --chown=jovyan:jovyan entrypoint.sh /home/${USER}
 COPY --chown=jovyan:jovyan Dockerfile /home/${USER}
 
