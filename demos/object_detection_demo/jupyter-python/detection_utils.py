@@ -6,9 +6,7 @@ import os
 import sys
 import urllib
 
-open_model_zoo_path = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir)))))
-)
+open_model_zoo_path =  os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))))
 
 sys.path.append(os.path.join(open_model_zoo_path, "demos", "common", "python"))
 
