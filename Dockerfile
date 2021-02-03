@@ -5,8 +5,8 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6
 
 # install the notebook package
 RUN pip install --no-cache --upgrade pip && \
-    pip install --no-cache notebook
-RUN pip install openvino numpy==1.19 ipywidgets pyyaml matplotlib voila opencv-python ipython==7.10
+    pip install --no-cache notebook && \
+    pip install openvino numpy==1.19 ipywidgets pyyaml matplotlib voila opencv-python ipython==7.10
 
 # create user with a home directory
 ENV USER jovyan
