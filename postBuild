@@ -1,4 +1,4 @@
 jupyter contrib nbextension install --user
 jupyter nbextension enable --py widgetsnbextension
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --minimize=False
-jupyter lab --LabApp.allow_origin='*' --no-browser --TagRemovePreprocessor.remove_cell_tags=("hide",}
+jupyter lab --LabApp.allow_origin='*' --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",}
