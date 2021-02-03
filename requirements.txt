@@ -1,0 +1,4 @@
+ipywidgets
+voila
+matplotlib
+openvino
