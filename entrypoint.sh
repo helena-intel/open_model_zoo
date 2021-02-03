@@ -35,4 +35,4 @@ done
 base_url=$JUPYTERHUB_SERVICE_PREFIX
 
 #voila /home/jovyan/demos/object_detection_demo/jupyter-python/object_detection_demo_nomo.ipynb --port=${port} --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --debug --Voila.base_url=${base_url}
-jupyter lab --port ${port} --ip 0.0.0.0 --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} 
+jupyter notebook --port ${port} --ip 0.0.0.0 --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} 
