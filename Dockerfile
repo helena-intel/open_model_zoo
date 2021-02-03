@@ -31,5 +31,7 @@ EXPOSE 8888
 
 ENV LD_LIBRARY_PATH /usr/local/lib
 
-ENTRYPOINT ["/home/jovyan/entrypoint.sh"]
+# ENTRYPOINT ["/home/jovyan/entrypoint.sh"]
+CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--TagRemovePreprocessor.remove_cell_tags","{'hide',}"]
 
+#jupyter notebook --port ${port} --ip 0.0.0.0 --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --NotebookApp.base_url=${base_url}
