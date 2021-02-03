@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # For a command line such as:
@@ -36,5 +37,5 @@ destport=$((port + 1))
 echo "Using internal port $destport"
 
 #jhsingle-native-proxy --destport $destport --authtype none voila /home/jovyan/Presentation.ipynb {--}port={port} {--}no-browser {--}Voila.base_url={base_url}/ {--}Voila.server_url=/ --port $port
-jhsingle-native-proxy --destport $destport --authtype none voila /home/jovyan/demos/object_detection_demo/jupyter-python/object_detection_demo_nomo.ipynb {--}port={port} {--}no-browser {--}Voila.base_url={base_url}/ {--}Voila.server_url=/ --port $port --TagRemovePreprocessor.remove_cell_tags={"hide",}
+jhsingle-native-proxy --destport $destport --authtype none voila /home/jovyan/demos/object_detection_demo/jupyter-python/object_detection_demo_nomo.ipynb {--}port={port} {--}no-browser {--}Voila.base_url={base_url}/ {--}Voila.server_url=/ {--}TagRemovePreprocessor.remove_cell_tags={"hide",} --port $port 
 
