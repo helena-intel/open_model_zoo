@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6
 # install the notebook package
 RUN pip install --no-cache --upgrade pip && \
     pip install --no-cache notebook && \
-    pip install openvino numpy==1.19 ipywidgets pyyaml requests matplotlib voila opencv-python ipython==7.10 
+    pip install openvino numpy==1.19 ipywidgets pyyaml requests matplotlib voila opencv-python ipython==7.10 tornado==6.1
 
 # create user with a home directory
 ENV USER jovyan
@@ -31,8 +31,9 @@ EXPOSE 8888
 
 ENV LD_LIBRARY_PATH /usr/local/lib
 
-#CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--TagRemovePreprocessor.remove_cell_tags","{'hide',}"]
+#CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--TagRemovePreprocessor.remove_cell_tags",{'hide',}]
 #CMD ["jupyter", "notebook", "--ip", "0.0.0.0"]
+
+WORKDIR /home/jovyan/demos/object_detection_demo/jupyter-python/
 ENTRYPOINT ["/home/jovyan/entrypoint.sh"]
 
-#jupyter notebook --port ${port} --ip 0.0.0.0 --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --NotebookApp.base_url=${base_url}
