@@ -36,6 +36,8 @@ base_url=$JUPYTERHUB_SERVICE_PREFIX
 
 #voila /home/jovyan/demos/object_detection_demo/jupyter-python/object_detection_demo_mo.ipynb --port=${port} --no-browser --TagRemovePreprocessor.remove_cell_tags='{"hide",}' --Voila.base_url=${base_url}
 #voila /home/jovyan/demos/object_detection_demo/jupyter-python/object_detection_demo_mo.ipynb  --port=${port} --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --Voila.base_url=${base_url}
-voila . --port=${port} --no-browser --Voila.base_url=${base_url}
+voila .  --port=${port} --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --Voila.base_url=${base_url}
 #jupyter notebook --port ${port} --ip 0.0.0.0 --no-browser --TagRemovePreprocessor.remove_cell_tags={"hide",} --NotebookApp.base_url=${base_url}
 
+#werkt
+#voila . --port=${port} --no-browser --Voila.base_url=${base_url}
