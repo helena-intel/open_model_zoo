@@ -7,3 +7,4 @@ jupyterlab
 pyyaml
 ipython==7.10
 numpy==1.19
+requests

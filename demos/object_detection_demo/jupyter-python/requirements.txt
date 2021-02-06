@@ -7,5 +7,4 @@ opencv_python
 pyyaml
 ipython==7.10
 numpy==1.19
-networkx
-test-generator==0.1.1
+requests
