@@ -1,10 +1,10 @@
-ipywidgets
+requests
 jupyterlab
+ipywidgets
 voila
 matplotlib
 openvino
-opencv_python
+opencv-python-headless
 pyyaml
 ipython==7.10
 numpy==1.19
-requests
