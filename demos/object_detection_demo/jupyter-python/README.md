@@ -22,11 +22,11 @@ Click on the *launch binder* button to try this notebook in the cloud. It allows
 
 ## Run this demo notebook locally
 
-1. Install Python 
+1. Clone this repository to your computer with `git`, or download the repository from [this link](https://github.com/helena-intel/open_model_zoo/archive/detection-async-notebook.zip) and unzip it.
+
+2. Install Python 
 
     This notebook has been tested on Linux (Ubuntu 20.04) and Windows, with Python 3.7.9. If you have not installed Python yet, download and install it from https://www.python.org/downloads/release/python-379/. Choose a 64-bit version. If you are on Windows, it is recommended to select the `Add Python to your PATH` option during installation.
-
-2. Clone this repository to your computer with `git`, or download the repository from [this link](https://github.com/helena-intel/open_model_zoo/archive/master.zip)
 
 3. Create a virtual environment with the required Python packages 
    - Open a terminal and go to the demo director (the directory that contains this README.)
