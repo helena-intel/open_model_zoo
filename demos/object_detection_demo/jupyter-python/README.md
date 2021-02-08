@@ -28,7 +28,7 @@ Click on the *launch binder* button to try this notebook in the cloud. It allows
 
 2. Install Python 
 
-    This notebook has been tested on Linux (Ubuntu 20.04) and Windows, with Python 3.7.9. If you have not installed Python yet, download and install it from https://www.python.org/downloads/release/python-379/. Choose a 64-bit version. If you are on Windows, it is recommended to select the `Add Python to your PATH` option during installation.
+    This notebook has been tested on Linux (Ubuntu 20.04) and Windows, with Python 3.7.9. If you have not installed Python yet, download and install it from https://www.python.org/downloads/release/python-379/. Choose a 64-bit version (not embedded). If you are on Windows, it is recommended to select the `Add Python to your PATH` option during installation.
 
 3. Install the required Python packages
    - Open a terminal and go to the demo directory (the directory that contains this README.)
@@ -37,9 +37,10 @@ Click on the *launch binder* button to try this notebook in the cloud. It allows
    - In the demo directory, type the following command: `pip install -r requirements.txt`
 
 4. Add the OpenVINO directory to the PATH (Windows) or LD_LIBRARY_PATH (Linux/MacOS) variable.
+    - NOTE: the PATH is remembered as long as you do not close the terminal application. If you open a new terminal and want to run the notebooks again, you have to set the PATH again. 
     - On Windows, on a fresh install:
-      - Find the PATH by copy/pasting: `python -c "import os, sys; print((os.path.dirname(sys.executable))+'\Library\\bin')"`
-      - Copy the path (with CTRL-C) and type `set PATH=` followed by CTRL-V to paste the path you just copied, followed by `;%PATH%;`
+      - Find the library path by copy/pasting: `python -c "import os, sys; print((os.path.dirname(sys.executable))+'\Library\\bin')"`. If you followed the default installation, the path will be `C:\Users\USERNAME\AppData\Local\Programs\Python\Python37\Library\bin`
+      - Copy the library path (with CTRL-C) and type `set PATH=` followed by CTRL-V to paste the path you just copied, followed by `;%PATH%;`
     - For other situations, follow the instructions on https://pypi.org/project/openvino-python/
  
 5. Run Jupyter Lab with `jupyter lab`. Click on the notebook at the left.
@@ -48,7 +49,7 @@ Click on the *launch binder* button to try this notebook in the cloud. It allows
 
 ### Use Voila to run the notebook in `dashboard mode`
 
-If you want to run the notebook in dashboard mode, without showing all the code, you can use Voila. Instead of typing `jupyter lab` type `voila --TagRemovePreprocessor.remove_cell_tags=hide --TagRemovePreprocessor.remove_cell-tags=hide_temp object_detection_demo.ipynb`
+If you want to run the notebook in dashboard mode, without showing all the code, you can use Voila. Instead of typing `jupyter lab` type `voila --TagRemovePreprocessor.remove_cell_tags=hide --TagRemovePreprocessor.remove_cell_tags=hide_temp object_detection_demo.ipynb`
 
 ### Use Public models from Open Model Zoo by installing and configuring the Model Optimizer
 
