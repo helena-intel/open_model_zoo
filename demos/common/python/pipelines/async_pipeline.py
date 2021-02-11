@@ -30,8 +30,6 @@ class AsyncPipeline:
 
         self.empty_requests = deque(self.exec_net.requests)
         self.completed_request_results = {}
-        self.completed_request_results_all = {}
-
         self.callback_exceptions = {}
         self.event = threading.Event()
 
@@ -42,8 +40,6 @@ class AsyncPipeline:
                 raise RuntimeError('Infer Request has returned status code {}'.format(status))
             raw_outputs = {key: blob.buffer for key, blob in request.output_blobs.items()}
             self.completed_request_results[id] = (raw_outputs, meta, preprocessing_meta)
-            self.completed_request_results_all[id] = (raw_outputs, meta, preprocessing_meta)
-            
             self.empty_requests.append(request)
         except Exception as e:
             self.callback_exceptions.append(e)
