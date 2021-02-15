@@ -1,12 +1,11 @@
 import logging as log
 import os
 import sys
-import time
 
 import numpy as np
 from openvino.inference_engine import IECore
 
-open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir)))))
+open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))))
 sys.path.append(os.path.join(open_model_zoo_path, "demos", "common", "python"))
 
 from tokens_bert import text_to_tokens, load_vocab_file
@@ -56,7 +55,7 @@ def find_sentence_range(context, s, e):
 
 
 class BERT(object):
-    def __init__(self, input_url, vocab_file, model_name, base_model_dir, reshape, device, model_squad_ver):
+    def __init__(self, input_url, vocab_file, model_name, base_model_dir, reshape, device, model_squad_ver, top_n_results=3):
         self._input_url = input_url
         self.vocab_file = vocab_file
         self._model_name = model_name
@@ -67,6 +66,7 @@ class BERT(object):
 
         self.max_question_token_num = 8
         self.max_answer_token_num = 15
+        self.top_n_results = top_n_results
 
         self.load_context()
         self.load_model()
@@ -197,9 +197,6 @@ class BERT(object):
             # 1/2 means that context windows are overlapped by half
             c_stride = c_wnd_len // 2
 
-            t0 = time.perf_counter()
-            t_count = 0
-
             # array of answers from each window
             answers = []
 
@@ -284,12 +281,12 @@ class BERT(object):
                 c_s = min(c_s + c_stride, len(self.c_tokens_id))
                 c_e = min(c_s + c_wnd_len, len(self.c_tokens_id))
 
-            # print top 3 results
+            # print top N results
             if show_context or show_answers:
                 answers = sorted(answers, key=lambda x: -x[0])
                 print(COLOR_BLUE + question + COLOR_RESET)
 
-                for score, s, e in answers[:3]:
+                for score, s, e in answers[:self.top_n_results]:
                     if show_answers:
                         print(f"---answer (score: {score:.2f}): {self.context[s:e]}")
                     if show_context:
