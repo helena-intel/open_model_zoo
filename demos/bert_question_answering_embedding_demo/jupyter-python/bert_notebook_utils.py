@@ -1,12 +1,11 @@
 import logging as log
 import os
 import sys
-import time
 
 import numpy as np
 from openvino.inference_engine import IECore
 
-open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir)))))
+open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))))
 sys.path.append(os.path.join(open_model_zoo_path, "demos", "common", "python"))
 
 from tokens_bert import text_to_tokens, load_vocab_file
@@ -199,9 +198,6 @@ class BERT(object):
             # token num between two neighbour context windows
             # 1/2 means that context windows are overlapped by half
             c_stride = c_wnd_len // 2
-
-            t0 = time.perf_counter()
-            t_count = 0
 
             # array of answers from each window
             answers = []

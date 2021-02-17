@@ -2,13 +2,11 @@ import logging as log
 import os
 import sys
 import time
-from argparse import ArgumentParser, SUPPRESS
-import subprocess
 
 import numpy as np
 from openvino.inference_engine import IECore
 
-open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir)))))
+open_model_zoo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))))
 sys.path.append(os.path.join(open_model_zoo_path, "demos", "common", "python"))
 
 from tokens_bert import text_to_tokens, load_vocab_file
@@ -149,10 +147,10 @@ class BERT(object):
 
         self.ie_encoder_exec_emb_dict = {}
 
-        for l in [self.max_length_q, self.max_length_c]:
+        for length in [self.max_length_q, self.max_length_c]:
             new_shapes = {}
             for i, input_info in ie_encoder_emb.input_info.items():
-                new_shapes[i] = [1, l]
+                new_shapes[i] = [1, length]
                 log.info("Reshaped input {} from {} to the {}".format(i, input_info.input_data.shape, new_shapes[i]))
             log.info("Attempting to reshape the context embedding network to the modified inputs...")
 
@@ -165,7 +163,7 @@ class BERT(object):
 
             # Loading model to the plugin
             log.info("Loading model to the plugin")
-            self.ie_encoder_exec_emb_dict[l] = ie.load_network(network=ie_encoder_emb, device_name=self.device)
+            self.ie_encoder_exec_emb_dict[length] = ie.load_network(network=ie_encoder_emb, device_name=self.device)
 
     def load_model_qa(self):
         ie = IECore()
